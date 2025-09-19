@@ -1,0 +1,36 @@
+body {
+  font-family: Arial, sans-serif;
+  background: #222;
+  color: #fff;
+  margin: 0;
+  padding: 0;
+  text-align: center;
+}
+.game-chooser {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin: 2rem auto;
+  max-width: 300px;
+}
+.game-btn {
+  background: #444;
+  color: #fff;
+  padding: 1rem;
+  border-radius: 10px;
+  text-decoration: none;
+  font-size: 1.2rem;
+  transition: background 0.2s;
+}
+.game-btn:hover {
+  background: #00bcd4;
+}
+@media (max-width: 600px) {
+  .game-chooser {
+    max-width: 90vw;
+  }
+  .game-btn {
+    font-size: 1rem;
+    padding: 0.8rem;
+  }
+}
