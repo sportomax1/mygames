@@ -5,7 +5,7 @@ canvas.width = 320;
 canvas.height = 480;
 
 let paddle = { w: 60, h: 10, x: 130 };
-let ball = { x: 160, y: 300, r: 8, dx: 2, dy: -2 };
+let ball = { x: 160, y: 300, r: 8, dx: 4, dy: -4 };
 let bricks = [];
 let rows = 3, cols = 6, brickW = 40, brickH = 16;
 for (let r = 0; r < rows; r++) {
@@ -77,7 +77,7 @@ function update() {
 
 	// Missed paddle
 	if (ball.y + ball.r > canvas.height) {
-		ball.x = 160; ball.y = 300; ball.dx = 2; ball.dy = -2;
+		ball.x = 160; ball.y = 300; ball.dx = 4 * (Math.random() > 0.5 ? 1 : -1); ball.dy = -4;
 	}
 
 	// Brick collision

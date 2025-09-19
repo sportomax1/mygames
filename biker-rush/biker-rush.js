@@ -10,7 +10,21 @@ let score = 0;
 let gameOver = false;
 
 function spawnCar() {
-  const lane = Math.floor(Math.random() * 3);
+  // Find lanes currently blocked at the top
+  let blocked = [false, false, false];
+  cars.forEach(car => {
+    if (car.y < 60) {
+      let lane = Math.round((car.x - 10) / 100);
+      blocked[lane] = true;
+    }
+  });
+  // Find open lanes
+  let openLanes = [];
+  for (let i = 0; i < 3; i++) if (!blocked[i]) openLanes.push(i);
+  // Always leave at least one lane open
+  if (openLanes.length === 0) openLanes = [Math.floor(Math.random()*3)];
+  // Pick a random lane from open lanes
+  const lane = openLanes[Math.floor(Math.random() * openLanes.length)];
   cars.push({ x: lane * 100 + 10, y: -60, w: 80, h: 60, color: ['#f00','#ff0','#0ff'][lane] });
 }
 

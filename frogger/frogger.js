@@ -1,4 +1,3 @@
-
 const canvas = document.getElementById('froggerCanvas');
 const ctx = canvas.getContext('2d');
 canvas.width = 320;
@@ -115,6 +114,9 @@ function update() {
           frog.y + frog.h > log.y && frog.y < log.y + log.h
         ) {
           frog.x += log.dx;
+          // Clamp frog to log bounds
+          if (frog.x < log.x) frog.x = log.x;
+          if (frog.x + frog.w > log.x + log.w) frog.x = log.x + log.w - frog.w;
         }
       });
     }

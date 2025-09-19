@@ -49,6 +49,9 @@ function addStep() {
 
 function handleTap(color) {
   if (playing) return;
+  const btn = board.children[colors.indexOf(color)];
+  btn.classList.add('selected');
+  setTimeout(() => btn.classList.remove('selected'), 350);
   if (color === sequence[userStep]) {
     userStep++;
     if (userStep === sequence.length) {

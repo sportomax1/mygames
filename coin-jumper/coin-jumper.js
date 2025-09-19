@@ -29,8 +29,51 @@ function spawnEnemy() {
 }
 
 function drawPlayer() {
-  ctx.fillStyle = '#ff0';
-  ctx.fillRect(player.x, player.y, player.w, player.h);
+  // Draw body
+  ctx.save();
+  ctx.translate(player.x + player.w/2, player.y + player.h/2);
+  ctx.beginPath();
+  ctx.arc(0, 0, 16, 0, Math.PI*2); // head
+  ctx.fillStyle = '#ffe066';
+  ctx.fill();
+  ctx.closePath();
+  // Eyes
+  ctx.beginPath();
+  ctx.arc(-5, -4, 2, 0, Math.PI*2);
+  ctx.arc(5, -4, 2, 0, Math.PI*2);
+  ctx.fillStyle = '#222';
+  ctx.fill();
+  ctx.closePath();
+  // Smile
+  ctx.beginPath();
+  ctx.arc(0, 4, 6, 0, Math.PI);
+  ctx.strokeStyle = '#222';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+  ctx.closePath();
+  // Body
+  ctx.beginPath();
+  ctx.rect(-8, 10, 16, 10);
+  ctx.fillStyle = '#4fc3f7';
+  ctx.fill();
+  ctx.closePath();
+  // Arms
+  ctx.beginPath();
+  ctx.moveTo(-8, 12); ctx.lineTo(-16, 18);
+  ctx.moveTo(8, 12); ctx.lineTo(16, 18);
+  ctx.strokeStyle = '#ffe066';
+  ctx.lineWidth = 3;
+  ctx.stroke();
+  ctx.closePath();
+  // Legs
+  ctx.beginPath();
+  ctx.moveTo(-4, 20); ctx.lineTo(-4, 28);
+  ctx.moveTo(4, 20); ctx.lineTo(4, 28);
+  ctx.strokeStyle = '#4fc3f7';
+  ctx.lineWidth = 3;
+  ctx.stroke();
+  ctx.closePath();
+  ctx.restore();
 }
 function drawCoins() {
   ctx.fillStyle = '#ffd700';
@@ -42,12 +85,37 @@ function drawCoins() {
   });
 }
 function drawObstacles() {
-  ctx.fillStyle = '#888';
-  obstacles.forEach(o => ctx.fillRect(o.x, o.y, o.w, o.h));
+  obstacles.forEach(o => {
+    ctx.fillStyle = '#8d5524';
+    ctx.fillRect(o.x, o.y, o.w, o.h);
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(o.x, o.y, o.w, o.h);
+  });
 }
 function drawEnemies() {
-  ctx.fillStyle = '#f00';
-  enemies.forEach(e => ctx.fillRect(e.x, e.y, e.w, e.h));
+  enemies.forEach(e => {
+    ctx.save();
+    ctx.translate(e.x + e.w/2, e.y + e.h/2);
+    ctx.beginPath();
+    ctx.arc(0, 0, 14, 0, Math.PI*2);
+    ctx.fillStyle = '#e53935';
+    ctx.fill();
+    ctx.closePath();
+    ctx.beginPath();
+    ctx.arc(-5, -4, 2, 0, Math.PI*2);
+    ctx.arc(5, -4, 2, 0, Math.PI*2);
+    ctx.fillStyle = '#fff';
+    ctx.fill();
+    ctx.closePath();
+    ctx.beginPath();
+    ctx.arc(0, 4, 6, 0, Math.PI);
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    ctx.closePath();
+    ctx.restore();
+  });
 }
 function drawScore() {
   ctx.font = '20px Arial';
@@ -61,7 +129,13 @@ function showMessage(msg) {
 }
 
 function update() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  // Draw background
+  ctx.fillStyle = 'linear-gradient(#aee1f9, #fff)';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  // Draw ground
+  ctx.fillStyle = '#43a047';
+  ctx.fillRect(0, 440, canvas.width, 40);
+  ctx.clearRect(0, 0, canvas.width, 440);
   drawPlayer();
   drawCoins();
   drawObstacles();

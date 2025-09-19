@@ -8,6 +8,7 @@ let fruits = [];
 let score = 0;
 let slicing = false;
 let lastX = 0, lastY = 0;
+let slices = [];
 
 function spawnFruit() {
   const x = Math.random() * (canvas.width - 40) + 20;
@@ -28,6 +29,8 @@ canvas.addEventListener('touchmove', function(e) {
   fruits.forEach((fruit, i) => {
     if (Math.hypot(fruit.x - x, fruit.y - y) < fruit.r) {
       score++;
+      // Add slice animation
+      slices.push({ x: fruit.x, y: fruit.y, angle: Math.atan2(y-lastY, x-lastX), t: 0, color: fruit.color });
       fruits.splice(i, 1);
     }
   });
@@ -45,6 +48,33 @@ function drawFruits() {
     ctx.fillStyle = fruit.color;
     ctx.fill();
     ctx.closePath();
+  });
+  // Draw slice animations
+  slices.forEach(slice => {
+    ctx.save();
+    ctx.translate(slice.x, slice.y);
+    ctx.rotate(slice.angle);
+    ctx.beginPath();
+    ctx.arc(0, 0, 28 + slice.t*8, -0.4, 0.4);
+    ctx.lineWidth = 6 - slice.t*2;
+    ctx.strokeStyle = slice.color;
+    ctx.globalAlpha = 0.7 - slice.t*0.7;
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+    ctx.restore();
+    // Burst effect
+    if (slice.t < 0.2) {
+      ctx.save();
+      ctx.translate(slice.x, slice.y);
+      ctx.rotate(slice.angle);
+      ctx.beginPath();
+      ctx.arc(0, 0, 10 + slice.t*20, 0, Math.PI*2);
+      ctx.fillStyle = slice.color;
+      ctx.globalAlpha = 0.3 - slice.t*0.3;
+      ctx.fill();
+      ctx.globalAlpha = 1;
+      ctx.restore();
+    }
   });
 }
 
@@ -64,6 +94,9 @@ function update() {
     fruit.vy += 0.2;
   });
   fruits = fruits.filter(fruit => fruit.y - fruit.r < canvas.height);
+  // Animate slices
+  slices.forEach(slice => { slice.t += 0.04; });
+  slices = slices.filter(slice => slice.t < 1);
   if (Math.random() < 0.03) spawnFruit();
   requestAnimationFrame(update);
 }
