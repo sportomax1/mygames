@@ -2,14 +2,16 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Simon Game</title>
   <link rel="stylesheet" href="simon.css">
 </head>
 <body>
-  <h1>Simon</h1>
-  <div id="simonBoard" style="max-width:100vw;touch-action:none;margin:0 auto;"></div>
-  <div id="simonMsg" style="margin-top:1rem;color:#fff;font-size:1.2rem;"></div>
+  <div style="height:100svh;display:flex;flex-direction:column;justify-content:center;align-items:center;">
+    <h1>Simon</h1>
+    <div id="simonBoard" style="max-width:100vw;touch-action:none;margin:0 auto;"></div>
+    <div id="simonMsg" style="margin-top:1rem;color:#fff;font-size:1.2rem;"></div>
+  </div>
   <script src="simon.js"></script>
 </body>
 </html>

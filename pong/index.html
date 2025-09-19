@@ -2,13 +2,15 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Pong Game</title>
   <link rel="stylesheet" href="pong.css">
 </head>
 <body>
-  <h1>Pong</h1>
-  <canvas id="pongCanvas" width="320" height="480" style="max-width:100vw;max-height:70vh;touch-action:none;display:block;margin:0 auto;"></canvas>
+  <div style="height:100svh;display:flex;flex-direction:column;justify-content:center;align-items:center;">
+    <h1>Pong</h1>
+    <canvas id="pongCanvas" width="320" height="480" style="max-width:100vw;max-height:80svh;touch-action:none;display:block;margin:0 auto;"></canvas>
+  </div>
   <script src="pong.js"></script>
 </body>
 </html>

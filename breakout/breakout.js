@@ -14,9 +14,21 @@ for (let r = 0; r < rows; r++) {
 	}
 }
 
+let draggingPaddle = false;
 canvas.addEventListener('touchstart', function(e) {
+	draggingPaddle = true;
 	const touchX = e.touches[0].clientX - canvas.getBoundingClientRect().left;
-	paddle.x = touchX - paddle.w / 2;
+	paddle.x = Math.max(0, Math.min(canvas.width - paddle.w, touchX - paddle.w / 2));
+});
+
+canvas.addEventListener('touchmove', function(e) {
+	if (!draggingPaddle) return;
+	const touchX = e.touches[0].clientX - canvas.getBoundingClientRect().left;
+	paddle.x = Math.max(0, Math.min(canvas.width - paddle.w, touchX - paddle.w / 2));
+});
+
+canvas.addEventListener('touchend', function(e) {
+	draggingPaddle = false;
 });
 
 function drawPaddle() {

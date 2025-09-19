@@ -1,0 +1,4 @@
+#game2048 div {
+  box-shadow: 0 2px 8px #0004;
+  transition: background 0.2s;
+}

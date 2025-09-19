@@ -42,10 +42,23 @@ function drawScore() {
 	ctx.fillText(`${playerScore} : ${aiScore}`, canvas.width / 2 - 20, 30);
 }
 
+let draggingPaddle = false;
 canvas.addEventListener('touchstart', function(e) {
+	draggingPaddle = true;
 	const touchY = e.touches[0].clientY - canvas.getBoundingClientRect().top;
 	if (playerSide === 'left') leftPaddleY = Math.max(0, Math.min(canvas.height - paddleH, touchY - paddleH / 2));
 	else rightPaddleY = Math.max(0, Math.min(canvas.height - paddleH, touchY - paddleH / 2));
+});
+
+canvas.addEventListener('touchmove', function(e) {
+	if (!draggingPaddle) return;
+	const touchY = e.touches[0].clientY - canvas.getBoundingClientRect().top;
+	if (playerSide === 'left') leftPaddleY = Math.max(0, Math.min(canvas.height - paddleH, touchY - paddleH / 2));
+	else rightPaddleY = Math.max(0, Math.min(canvas.height - paddleH, touchY - paddleH / 2));
+});
+
+canvas.addEventListener('touchend', function(e) {
+	draggingPaddle = false;
 });
 
 function resetBall() {
