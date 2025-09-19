@@ -1,36 +1,57 @@
+
+
 body {
-  font-family: Arial, sans-serif;
-  background: #222;
-  color: #fff;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background: linear-gradient(135deg, #e3eaf2 0%, #b0c4de 100%);
+  color: #222;
   margin: 0;
   padding: 0;
   text-align: center;
+  overflow-x: hidden;
 }
 .game-chooser {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1.1rem;
   margin: 2rem auto;
-  max-width: 300px;
+  max-width: 360px;
 }
 .game-btn {
-  background: #444;
-  color: #fff;
-  padding: 1rem;
-  border-radius: 10px;
+  background: #f5f7fa;
+  color: #1565c0;
+  padding: 1.1rem;
+  border-radius: 14px;
   text-decoration: none;
-  font-size: 1.2rem;
-  transition: background 0.2s;
+  font-size: 1.25rem;
+  font-weight: 500;
+  transition: background 0.2s, color 0.2s;
+  box-shadow: 0 2px 8px #b0c4de99;
+  border: 1px solid #e0e0e0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.7em;
 }
-.game-btn:hover {
-  background: #00bcd4;
+.game-btn:active {
+  background: #e3eaf2;
+  color: #1976d2;
+}
+.game-btn .emoji {
+  font-size: 1.5em;
+  margin-right: 0.3em;
+}
+input#searchBar {
+  border: 1px solid #b0c4de;
+  background: #f5f7fa;
+  color: #1565c0;
 }
 @media (max-width: 600px) {
   .game-chooser {
-    max-width: 90vw;
+    max-width: 98vw;
+    gap: 0.8rem;
   }
   .game-btn {
-    font-size: 1rem;
-    padding: 0.8rem;
+    font-size: 1.08rem;
+    padding: 0.9rem;
   }
 }
