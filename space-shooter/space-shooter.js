@@ -1,4 +1,5 @@
 
+
 const canvas = document.getElementById('spaceShooterCanvas');
 const ctx = canvas.getContext('2d');
 canvas.width = 320;
@@ -6,12 +7,19 @@ canvas.height = 480;
 
 let ship = { x: canvas.width / 2 - 15, y: canvas.height - 50, w: 30, h: 30 };
 let bullets = [];
-let enemies = [{ x: 50, y: 40, w: 30, h: 30 }];
+let enemies = [{ x: 50, y: 0, w: 30, h: 30 }];
+let lastTap = 0;
 
 canvas.addEventListener('touchstart', function(e) {
+	const now = Date.now();
 	const touchX = e.touches[0].clientX - canvas.getBoundingClientRect().left;
-	ship.x = touchX - ship.w / 2;
-	bullets.push({ x: ship.x + ship.w / 2 - 3, y: ship.y, w: 6, h: 12 });
+	// Move ship left/right with thumb
+	ship.x = Math.max(0, Math.min(canvas.width - ship.w, touchX - ship.w / 2));
+	// Double tap to shoot
+	if (now - lastTap < 300) {
+		bullets.push({ x: ship.x + ship.w / 2 - 3, y: ship.y, w: 6, h: 12 });
+	}
+	lastTap = now;
 });
 
 function drawShip() {
@@ -39,8 +47,11 @@ function update() {
 	bullets.forEach(b => b.y -= 6);
 	bullets = bullets.filter(b => b.y + b.h > 0);
 
-	// Simple enemy movement
-	enemies.forEach(e => e.x += 2 * (Math.random() > 0.5 ? 1 : -1));
+	// Enemy movement: move top to bottom
+	enemies.forEach(e => {
+		e.y += 2;
+	});
+	enemies = enemies.filter(e => e.y < canvas.height);
 
 	// Collision
 	bullets.forEach(b => {
@@ -55,7 +66,7 @@ function update() {
 	});
 
 	// Respawn enemy if none
-	if (enemies.length === 0) enemies.push({ x: Math.random() * (canvas.width - 30), y: 40, w: 30, h: 30 });
+	if (enemies.length === 0) enemies.push({ x: Math.random() * (canvas.width - 30), y: 0, w: 30, h: 30 });
 
 	requestAnimationFrame(update);
 }

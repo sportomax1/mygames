@@ -1,4 +1,5 @@
 
+
 const canvas = document.getElementById('snakeCanvas');
 const ctx = canvas.getContext('2d');
 canvas.width = 320;
@@ -12,7 +13,28 @@ let food = {
 	y: Math.floor(Math.random() * (canvas.height / box)) * box
 };
 
-document.addEventListener('touchstart', function(e) {
+let started = false;
+
+function showControls() {
+	ctx.clearRect(0, 0, canvas.width, canvas.height);
+	ctx.fillStyle = '#fff';
+	ctx.font = '20px Arial';
+	ctx.textAlign = 'center';
+	ctx.fillText('Snake Controls:', canvas.width / 2, 180);
+	ctx.font = '16px Arial';
+	ctx.fillText('Tap above/below/left/right of snake', canvas.width / 2, 210);
+	ctx.fillText('to change direction.', canvas.width / 2, 235);
+	ctx.fillText('Tap to start!', canvas.width / 2, 270);
+}
+
+showControls();
+
+canvas.addEventListener('touchstart', function(e) {
+	if (!started) {
+		started = true;
+		setInterval(update, 120);
+		return;
+	}
 	const touchY = e.touches[0].clientY - canvas.getBoundingClientRect().top;
 	const touchX = e.touches[0].clientX - canvas.getBoundingClientRect().left;
 	if (touchY < snake[0].y) direction = 'UP';
@@ -49,6 +71,8 @@ function update() {
 		direction = 'RIGHT';
 		food.x = Math.floor(Math.random() * (canvas.width / box)) * box;
 		food.y = Math.floor(Math.random() * (canvas.height / box)) * box;
+		started = false;
+		showControls();
 		return;
 	}
 
@@ -64,5 +88,3 @@ function update() {
 
 	draw();
 }
-
-setInterval(update, 120);

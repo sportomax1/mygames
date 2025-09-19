@@ -1,0 +1,8 @@
+body { background: #222; color: #fff; text-align: center; }
+#simonBoard { display: grid; grid-template-columns: repeat(2, 120px); grid-template-rows: repeat(2, 120px); gap: 16px; margin: 2rem auto; width: 256px; }
+.simon-btn { width: 120px; height: 120px; border-radius: 20px; box-shadow: 0 2px 8px #0006; font-size: 0; border: none; outline: none; transition: filter 0.2s; }
+.simon-btn.active { filter: brightness(1.5); }
+.simon-btn.red { background: #e53935; }
+.simon-btn.green { background: #43a047; }
+.simon-btn.blue { background: #1e88e5; }
+.simon-btn.yellow { background: #fbc02d; }

@@ -1,0 +1,5 @@
+body { background: #222; color: #fff; text-align: center; }
+#memoryBoard { display: grid; grid-template-columns: repeat(4, 60px); grid-gap: 12px; margin: 2rem auto; width: 264px; }
+.memory-card { width: 60px; height: 60px; background: #444; border-radius: 10px; font-size: 2rem; color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 2px 8px #0006; transition: background 0.2s, color 0.2s; }
+.memory-card.flipped { background: #00bcd4; color: #222; }
+.memory-card.matched { background: #43a047; color: #fff; }

@@ -14,15 +14,27 @@ function checkWin() {
   );
 }
 
+
 function handleTap(e) {
   if (e.target.textContent === '') {
     e.target.textContent = currentPlayer;
+    e.target.classList.add(currentPlayer.toLowerCase());
     if (checkWin()) {
-      setTimeout(() => alert(currentPlayer + ' wins!'), 100);
-      squares.forEach(sq => sq.textContent = '');
+      setTimeout(() => {
+        squares.forEach(sq => {
+          sq.textContent = '';
+          sq.classList.remove('x', 'o');
+        });
+        alert(currentPlayer + ' wins!');
+      }, 300);
     } else if (squares.every(sq => sq.textContent !== '')) {
-      setTimeout(() => alert('Draw!'), 100);
-      squares.forEach(sq => sq.textContent = '');
+      setTimeout(() => {
+        squares.forEach(sq => {
+          sq.textContent = '';
+          sq.classList.remove('x', 'o');
+        });
+        alert('Draw!');
+      }, 300);
     } else {
       currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
     }

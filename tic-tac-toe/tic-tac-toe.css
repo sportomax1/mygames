@@ -1,3 +1,37 @@
-body { background: #222; color: #fff; text-align: center; }
-#ticTacToeBoard { display: grid; grid-template-columns: repeat(3, 80px); grid-gap: 5px; margin: 2rem auto; }
-.square { width: 80px; height: 80px; background: #444; font-size: 2rem; color: #fff; display: flex; align-items: center; justify-content: center; border-radius: 8px; cursor: pointer; }
+
+body { background: linear-gradient(135deg, #222 60%, #00bcd4 100%); color: #fff; text-align: center; }
+#ticTacToeBoard { display: grid; grid-template-columns: repeat(3, 80px); grid-gap: 8px; margin: 2rem auto; }
+.square {
+	width: 80px;
+	height: 80px;
+	background: #444;
+	font-size: 2.5rem;
+	color: #fff;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 16px;
+	cursor: pointer;
+	box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+	transition: background 0.3s, transform 0.2s;
+}
+.square.x {
+	background: #2196f3;
+	color: #fff;
+	animation: popX 0.3s;
+}
+.square.o {
+	background: #ff9800;
+	color: #fff;
+	animation: popO 0.3s;
+}
+@keyframes popX {
+	0% { transform: scale(0.7); }
+	80% { transform: scale(1.1); }
+	100% { transform: scale(1); }
+}
+@keyframes popO {
+	0% { transform: scale(0.7); }
+	80% { transform: scale(1.1); }
+	100% { transform: scale(1); }
+}
