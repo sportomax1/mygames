@@ -1,0 +1,12 @@
+body {
+  background: linear-gradient(135deg, #222 0%, #444 100%);
+  color: #fff;
+  font-family: 'Segoe UI', sans-serif;
+}
+#rushHourCanvas {
+  background: #eee;
+  border-radius: 18px;
+  box-shadow: 0 2px 12px #0006;
+  margin: 32px auto 0 auto;
+  display: block;
+}

@@ -20,11 +20,11 @@ function init() {
   msgDiv.textContent = '';
 }
 
-function draw() {
+function draw(animate = {}) {
   boardDiv.innerHTML = '';
   for (let r=0; r<rows; r++) for (let c=0; c<cols; c++) {
     let cell = document.createElement('div');
-    cell.style.background = board[r][c];
+    cell.style.background = board[r][c] || '#fff0';
     cell.style.borderRadius = '50%';
     cell.style.width = '100%';
     cell.style.height = '100%';
@@ -32,8 +32,17 @@ function draw() {
     cell.style.display = 'flex';
     cell.style.justifyContent = 'center';
     cell.style.alignItems = 'center';
-    cell.style.transition = 'background 0.2s';
+    cell.style.transition = 'background 0.2s, opacity 0.3s, transform 0.3s';
     cell.style.border = selected && selected.r===r && selected.c===c ? '3px solid #fff' : '2px solid #333';
+    if (animate.fade && animate.fade.some(([rr,cc])=>rr===r&&cc===c)) {
+      cell.style.opacity = '0';
+    }
+    if (animate.drop && animate.drop.some(([rr,cc])=>rr===r&&cc===c)) {
+      cell.style.transform = 'translateY(-40px)';
+    }
+    if (animate.swap && animate.swap.r1===r && animate.swap.c1===c) {
+      cell.style.transform = `translate(${40*(animate.swap.c2-animate.swap.c1)}px,${40*(animate.swap.r2-animate.swap.r1)}px)`;
+    }
     cell.addEventListener('touchstart', e => handleTouch(r,c,e));
     boardDiv.appendChild(cell);
   }
@@ -50,11 +59,14 @@ function handleTouch(r,c,e) {
   }
   // Only allow swap with adjacent
   if ((Math.abs(touchStart.r - r) + Math.abs(touchStart.c - c)) === 1) {
-    swap(touchStart.r, touchStart.c, r, c);
-    selected = null;
-    touchStart = null;
-    draw();
-    setTimeout(matchAndDrop, 200);
+    draw({swap:{r1:touchStart.r,c1:touchStart.c,r2:r,c2:c}});
+    setTimeout(()=>{
+      swap(touchStart.r, touchStart.c, r, c);
+      selected = null;
+      touchStart = null;
+      draw();
+      setTimeout(matchAndDrop, 200);
+    }, 180);
   } else {
     selected = null;
     touchStart = null;
@@ -83,23 +95,29 @@ function matchAndDrop() {
     }
   }
   let found = false;
+  let fadeList = [];
   for (let r=0; r<rows; r++) for (let c=0; c<cols; c++) {
     if (matched[r][c]) {
-      board[r][c] = null;
-      score += 10;
+      fadeList.push([r,c]);
       found = true;
     }
   }
   if (found) {
-    dropCandies();
-    setTimeout(matchAndDrop, 250);
-    draw();
+    draw({fade:fadeList});
+    setTimeout(()=>{
+      for (let [r,c] of fadeList) board[r][c] = null;
+      score += 10 * fadeList.length;
+      dropCandies(fadeList);
+      setTimeout(matchAndDrop, 250);
+      draw();
+    }, 250);
   } else {
     draw();
   }
 }
 
-function dropCandies() {
+function dropCandies(fadeList=[]) {
+  let dropList = [];
   for (let c=0; c<cols; c++) {
     for (let r=rows-1; r>=0; r--) {
       if (!board[r][c]) {
@@ -107,6 +125,7 @@ function dropCandies() {
           if (board[rr][c]) {
             board[r][c]=board[rr][c];
             board[rr][c]=null;
+            dropList.push([r,c]);
             break;
           }
         }
@@ -115,6 +134,7 @@ function dropCandies() {
     // Fill empty at top
     for (let r=0; r<rows; r++) if (!board[r][c]) board[r][c]=colors[Math.floor(Math.random()*colors.length)];
   }
+  if (dropList.length) draw({drop:dropList});
 }
 
 init();
