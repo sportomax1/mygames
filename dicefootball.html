@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dice Football Simulator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0d1117;
+            color: #e5e7eb;
+        }
+        .scoreboard-bg {
+            background: linear-gradient(145deg, #1f2937, #111827);
+        }
+        .field-container {
+            position: relative;
+            background-color: #38a169; /* Football field green */
+            height: 40px;
+            border-radius: 8px;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+            margin-top: 10px;
+        }
+        .ball-marker {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 8px;
+            height: 100%;
+            background-color: #f59e0b; /* Amber/Orange */
+            border: 1px solid #000;
+            border-radius: 2px;
+            transition: left 0.5s ease-in-out;
+            z-index: 10;
+        }
+        .first-down-marker {
+            position: absolute;
+            top: 0;
+            width: 4px;
+            height: 100%;
+            background-color: #f87171; /* Red/Orange for first down */
+            opacity: 0.7;
+            transition: left 0.5s ease-in-out;
+            z-index: 5;
+        }
+        .team-possession-bg {
+            transition: background-color 0.5s;
+        }
+        .btn-game {
+            transition: all 0.2s;
+            box-shadow: 0 4px #4b5563;
+        }
+        .btn-game:active {
+            box-shadow: 0 0 #4b5563;
+            transform: translateY(4px);
+        }
+        .red-coin { background-color: #ef4444; }
+        .green-coin { background-color: #10b981; }
+    </style>
+</head>
+<body class="p-4 md:p-8 min-h-screen">
+
+    <div id="app" class="max-w-xl mx-auto space-y-6">
+        <h1 class="text-3xl font-black text-center text-white mb-6">Dice Football Simulator</h1>
+
+        <!-- Scoreboard and Game Clock -->
+        <div id="scoreboard" class="scoreboard-bg p-4 rounded-xl shadow-2xl space-y-3">
+            <div class="flex justify-between items-center text-lg font-bold">
+                <div class="text-yellow-400">Quarter: <span id="quarter-display">1</span></div>
+                <div class="text-yellow-400">Time: <span id="time-display">15:00</span></div>
+            </div>
+            
+            <div class="flex justify-between items-center text-4xl font-extrabold">
+                <div class="flex flex-col items-center">
+                    <span id="team1-label" class="text-blue-400">TEAM A</span>
+                    <span id="score-t1">0</span>
+                </div>
+                <div class="text-gray-500">-</div>
+                <div class="flex flex-col items-center">
+                    <span id="team2-label" class="text-red-400">TEAM B</span>
+                    <span id="score-t2">0</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Field Visualization -->
+        <div class="p-4 bg-gray-800 rounded-xl shadow-inner">
+            <h2 class="text-xl font-bold mb-2 text-center">Field Position</h2>
+            <div class="flex justify-between text-xs font-semibold mb-1">
+                <span id="field-label-own" class="text-blue-400">T1 Endzone</span>
+                <span id="field-label-opp" class="text-red-400">T2 Endzone</span>
+            </div>
+            
+            <div id="field-visualization" class="field-container">
+                <!-- Field Hash Marks (Midfield) -->
+                <div class="absolute inset-y-0 w-1 bg-white/50" style="left: 50%;"></div>
+                <!-- Ball Marker -->
+                <div id="ball-marker" class="ball-marker" style="left: 20%;"></div>
+                <!-- First Down Marker -->
+                <div id="first-down-marker" class="first-down-marker" style="left: 30%;"></div>
+            </div>
+            <p class="text-sm mt-2 text-center">Ball on the <span id="yard-line-display" class="font-bold">20</span> yard line</p>
+
+            <div id="down-distance" class="mt-4 flex justify-around text-center">
+                <div>Down: <span id="down-display" class="font-bold">1</span></div>
+                <div>Distance: <span id="to-go-display" class="font-bold">10</span> yards</div>
+            </div>
+        </div>
+
+        <!-- Last Play Results -->
+        <div class="p-4 bg-gray-800 rounded-xl shadow-inner space-y-2">
+            <h2 class="text-xl font-bold text-center">Last Play Details</h2>
+            <p id="game-message" class="text-center font-semibold text-white/90">Click 'Start Game' to begin.</p>
+            <div id="dice-results" class="flex justify-center flex-wrap gap-4 pt-2">
+                <div class="text-center">
+                    <div class="w-12 h-12 flex items-center justify-center rounded-lg bg-gray-600 font-bold text-xl" id="coin-play-display">N/A</div>
+                    <span class="text-xs">Play Coin</span>
+                </div>
+                <div class="text-center">
+                    <div class="w-12 h-12 flex items-center justify-center rounded-lg bg-gray-600 font-bold text-xl" id="coin-success-display">N/A</div>
+                    <span class="text-xs">Success Coin</span>
+                </div>
+                <div class="text-center">
+                    <div class="w-12 h-12 flex items-center justify-center rounded-lg bg-gray-600 font-bold text-xl" id="d6-display">D6</div>
+                    <span class="text-xs">Run Dice</span>
+                </div>
+                <div class="text-center">
+                    <div class="w-12 h-12 flex items-center justify-center rounded-lg bg-gray-600 font-bold text-xl" id="d20-display">D20</div>
+                    <span class="text-xs">Pass Dice</span>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Game Controls -->
+        <div class="flex flex-col space-y-4 pt-4">
+            <button id="start-game-btn" onclick="startGame()" class="btn-game bg-green-600 hover:bg-green-700 text-white font-extrabold py-3 rounded-xl uppercase text-lg">
+                Start New Game
+            </button>
+            <button id="play-by-play-btn" onclick="playTurn()" disabled class="btn-game bg-blue-600 hover:bg-blue-700 text-white font-extrabold py-3 rounded-xl uppercase text-lg disabled:opacity-50 disabled:shadow-none">
+                Play Next Down (30 Seconds)
+            </button>
+            <button id="sim-full-btn" onclick="simulateFullGame()" disabled class="btn-game bg-purple-600 hover:bg-purple-700 text-white font-extrabold py-3 rounded-xl uppercase text-lg disabled:opacity-50 disabled:shadow-none">
+                Simulate Full Game
+            </button>
+        </div>
+
+        <!-- Modal Placeholder (Used for custom alerts/messages) -->
+        <div id="modal-container" class="fixed inset-0 bg-black bg-opacity-70 hidden items-center justify-center z-50">
+            <div class="bg-gray-700 p-6 rounded-xl shadow-2xl max-w-sm mx-4 text-center">
+                <p id="modal-text" class="text-white text-xl font-bold mb-4"></p>
+                <button onclick="hideModal()" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg">OK</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // --- Game State & Constants ---
+        let state = {};
+        const PLAY_TIME = 30; // Seconds per play
+        const QUARTER_TIME = 15 * 60; // 900 seconds
+        const YARD_LINE_START = 20; // Kickoff return spot
+        const YARD_LINE_MAX = 100;
+
+        // Global Firebase variables are not used for this purely client-side simulation.
+
+        // --- Utility Functions ---
+
+        /** Generates a random integer between 1 and max, inclusive. */
+        const rollDice = (max) => Math.floor(Math.random() * max) + 1;
+
+        /** Flips a coin between two options. */
+        const flipCoin = (option1, option2) => Math.random() < 0.5 ? option1 : option2;
+
+        /** Converts seconds to M:SS format. */
+        const formatTime = (seconds) => {
+            const minutes = Math.floor(seconds / 60);
+            const remainingSeconds = seconds % 60;
+            return `${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
+        };
+
+        /** Displays a custom modal message. */
+        const showModal = (text) => {
+            document.getElementById('modal-text').textContent = text;
+            document.getElementById('modal-container').classList.remove('hidden');
+            document.getElementById('modal-container').classList.add('flex');
+        };
+
+        /** Hides the custom modal. */
+        const hideModal = () => {
+            document.getElementById('modal-container').classList.remove('flex');
+            document.getElementById('modal-container').classList.add('hidden');
+        };
+
+        // --- Game Logic Functions ---
+
+        /** Initializes or resets the game state. */
+        const initializeState = () => {
+            state = {
+                score: { T1: 0, T2: 0 },
+                quarter: 1,
+                time: QUARTER_TIME,
+                down: 1,
+                toGo: 10,
+                yardLine: YARD_LINE_START,
+                possession: 'T1', // 'T1' or 'T2'
+                gameActive: true,
+                message: "Kickoff! Team A receives.",
+                d6Roll: 0,
+                d20Roll: 0,
+                coinPlay: 'N/A',
+                coinSuccess: 'N/A',
+                turnover: false, 
+                isOvertime: false,
+                gameOver: false,
+            };
+            updateUI();
+            updateControls(true);
+        };
+
+        /** * Switches possession and updates field logic for **turnovers** (Interception, Downs, Punt).
+         * The new offense takes over at the physical location (newYardLine).
+         */
+        const changePossession = (newYardLine, message) => {
+            const currentOffense = state.possession;
+            const newOffense = currentOffense === 'T1' ? 'T2' : 'T1';
+
+            state.possession = newOffense;
+            state.yardLine = newYardLine; // FIX: New offense takes over at the exact physical location (0-100)
+            state.down = 1;
+            state.toGo = 10;
+            state.message = message;
+        };
+
+        /** Handles the end of a play, checking for first downs, scores, and possession changes. */
+        const checkDownState = (yardsGained) => {
+            // Check for Touchdown
+            if (state.yardLine >= YARD_LINE_MAX || state.yardLine <= 0) { // Check both endzones (T1 drives 0->100, T2 drives 100->0)
+                const currentTeamName = state.possession === 'T1' ? 'Team A' : 'Team B';
+                
+                // Touchdown!
+                state.score[state.possession] += 7; // Assuming automatic PAT success
+                state.message = `${currentTeamName} TOUCHDOWN! Score is now ${state.score.T1} - ${state.score.T2}.`;
+                
+                // Kickoff logic: Determine receiving team and kickoff spot (own 20-yard line)
+                const receivingTeam = state.possession === 'T1' ? 'T2' : 'T1';
+                // T1's 20-yard line is at YL=20. T2's 20-yard line is at YL=80.
+                const kickoffYardLine = receivingTeam === 'T1' ? YARD_LINE_START : YARD_LINE_MAX - YARD_LINE_START; 
+
+                // Change possession directly for kickoff
+                state.possession = receivingTeam;
+                state.yardLine = kickoffYardLine;
+                state.down = 1;
+                state.toGo = 10;
+                state.message += ` Kickoff to ${receivingTeam === 'T1' ? 'Team A' : 'Team B'}.`;
+                return;
+            }
+            
+            // Handle First Down and Down Increment
+            let currentToGo = state.toGo;
+            currentToGo -= yardsGained;
+            
+            if (currentToGo <= 0) {
+                state.down = 1;
+                state.toGo = 10;
+                state.message += " FIRST DOWN!";
+            } else {
+                state.down++;
+                state.toGo = currentToGo;
+
+                // Check for Turnover on Downs
+                if (state.down > 4) {
+                    // Turnover on Downs
+                    changePossession(state.yardLine, "Turnover on Downs!");
+                }
+            }
+        };
+
+        /** Executes a field goal attempt on 4th down. */
+        const fieldGoalAttempt = () => {
+            const currentOffense = state.possession === 'T1' ? 'Team A' : 'Team B';
+            
+            // Field Goal distance: (distance to opponent's endzone) + 10 yards (snap/hold/endzone)
+            // If T1 (drives 0->100): 100 - YL
+            // If T2 (drives 100->0): YL - 0 (but we use the distance from 0, so 100 - YL)
+            const distanceToGoal = state.possession === 'T1' ? (YARD_LINE_MAX - state.yardLine) : state.yardLine;
+            const kickDistance = distanceToGoal + 10; 
+            
+            const d6 = rollDice(6);
+            const maxRange = d6 * 10;
+
+            state.d6Roll = d6;
+            state.d20Roll = 0; // Not used
+            state.coinPlay = 'FG Attempt';
+            state.coinSuccess = kickDistance <= maxRange ? 'Green' : 'Red';
+
+            let message;
+            if (kickDistance <= maxRange) {
+                // Field Goal is GOOD!
+                state.score[state.possession] += 3;
+                message = `${currentOffense} kicks a ${kickDistance}-yard field goal (D6:${d6}, Max Range:${maxRange}). GOOD! Score: ${state.score.T1} - ${state.score.T2}.`;
+                
+                // Kickoff logic: Determine receiving team and kickoff spot (own 20-yard line)
+                const receivingTeam = state.possession === 'T1' ? 'T2' : 'T1';
+                const kickoffYardLine = receivingTeam === 'T1' ? YARD_LINE_START : YARD_LINE_MAX - YARD_LINE_START; 
+
+                // Change possession directly for kickoff
+                state.possession = receivingTeam;
+                state.yardLine = kickoffYardLine;
+                state.down = 1;
+                state.toGo = 10;
+                state.message = message + ` Kickoff to ${receivingTeam === 'T1' ? 'Team A' : 'Team B'}.`;
+            } else {
+                // Field Goal is NO GOOD! Turnover on Downs at the line of scrimmage
+                message = `${currentOffense} attempts a ${kickDistance}-yard field goal (D6:${d6}, Max Range:${maxRange}). NO GOOD!`;
+                // Turnover on downs at the line of scrimmage (currentYL)
+                changePossession(state.yardLine, message + " Turnover on Downs.");
+            }
+        };
+
+        /** Handles 4th down decision: Punt (Turnover) or Field Goal. */
+        const handleFourthDown = () => {
+            const currentOffense = state.possession;
+            
+            // Check if within Field Goal Range (arbitrarily set to past the opponent's 40-yard line, meaning YL > 60 for T1 or YL < 40 for T2)
+            let inFieldGoalRange;
+            if (currentOffense === 'T1') {
+                // T1 drives 0->100. Range is YL > 60 (opponents 40)
+                inFieldGoalRange = state.yardLine > 60;
+            } else {
+                // T2 drives 100->0. Range is YL < 40 (opponents 40)
+                inFieldGoalRange = state.yardLine < 40;
+            }
+
+            if (inFieldGoalRange) {
+                // Attacking side of the field -> Field Goal attempt
+                fieldGoalAttempt();
+            } else {
+                // Own side of the field -> Automatic Punt (Turnover)
+                // Simple punt distance simulation (e.g., 10-60 yards)
+                const puntDistance = rollDice(6) * 10; 
+                let newYardLine = state.yardLine;
+                
+                // Calculate where the opposing team starts possession
+                if (currentOffense === 'T1') {
+                    // T1 punts from state.yardLine towards T2's endzone (100)
+                    // The receiving team starts at the location (state.yardLine + puntDistance)
+                    // The ball is marked at YL=100 - (state.yardLine + puntDistance)
+                    let ballLocationAfterPunt = state.yardLine + puntDistance;
+                    if (ballLocationAfterPunt >= YARD_LINE_MAX) {
+                        newYardLine = YARD_LINE_MAX - YARD_LINE_START; // Touchback to the 80
+                    } else {
+                        newYardLine = ballLocationAfterPunt; 
+                    }
+                } else {
+                    // T2 punts from state.yardLine towards T1's endzone (0)
+                    // The ball is marked at YL=state.yardLine - puntDistance
+                    let ballLocationAfterPunt = state.yardLine - puntDistance;
+                    if (ballLocationAfterPunt <= 0) {
+                        newYardLine = YARD_LINE_START; // Touchback to the 20
+                    } else {
+                        newYardLine = ballLocationAfterPunt; 
+                    }
+                }
+                
+                // Flip possession and set new starting yard line
+                changePossession(newYardLine, `${currentOffense === 'T1' ? 'Team A' : 'Team B'} punts (D6:${puntDistance} yds). Turnover. New possession for ${state.possession === 'T1' ? 'Team B' : 'Team A'}.`);
+            }
+        };
+
+        /** Calculates yardage based on play type and success coin. */
+        const calculateYardage = (playType, successCoin) => {
+            let yards = 0;
+            state.coinPlay = playType;
+            state.coinSuccess = successCoin;
+            state.turnover = false; // Reset turnover flag
+
+            const currentTeamName = state.possession === 'T1' ? 'Team A' : 'Team B';
+            
+            if (playType === 'Run') {
+                const d6 = rollDice(6);
+                state.d6Roll = d6;
+                state.d20Roll = 0;
+                
+                if (successCoin === 'Green') {
+                    yards = d6; // Positive run
+                    state.message = `${currentTeamName} runs the ball (D6:${d6}). Gained ${yards} yards.`;
+                } else {
+                    // Red Coin: Negative run
+                    yards = -d6;
+                    if (yards > -5) yards = -5; // Enforce minimum -5 yard loss on a poor roll
+                    state.message = `${currentTeamName} runs the ball (D6:${d6}, Red Coin). Lost ${Math.abs(yards)} yards.`;
+                }
+            } else { // Pass
+                const d20 = rollDice(20);
+                state.d6Roll = 0;
+                state.d20Roll = d20;
+                
+                if (successCoin === 'Green') {
+                    yards = d20; // Successful completion
+                    state.message = `${currentTeamName} completes a pass (D20:${d20}). Gained ${yards} yards.`;
+                } else {
+                    // Red Coin: Incomplete, Sack, or INTERCEPTION (New Logic)
+                    if (d20 === 1) { 
+                        // INTERCEPTION (1/20 chance on a red coin)
+                        yards = 0;
+                        state.turnover = true; 
+                        state.message = `${currentTeamName} throws an INTERCEPTION (Red Coin, D20:${d20})! Turnover at the line of scrimmage.`;
+                    } else if (d20 <= 5) {
+                        // SACK (4/20 chance on a red coin)
+                        yards = -5; 
+                        state.message = `${currentTeamName} is SACKED (Red Coin, D20:${d20}). Lost 5 yards.`;
+                    } else {
+                        // INCOMPLETE PASS (15/20 chance on a red coin)
+                        yards = 0; 
+                        state.message = `${currentTeamName} pass incomplete (Red Coin, D20:${d20}). Loss of down.`;
+                    }
+                }
+            }
+
+            return yards;
+        };
+
+        /** Executes one play. */
+        const playTurn = () => {
+            if (!state.gameActive || state.gameOver) return;
+
+            // 1. Check for 4th Down Decision
+            if (state.down === 4) {
+                handleFourthDown();
+            } else {
+                // 2. Roll Dice and Coins
+                const playType = flipCoin('Run', 'Pass');
+                const successCoin = flipCoin('Green', 'Red');
+                const yardsGained = calculateYardage(playType, successCoin);
+
+                // 3. Handle Immediate Turnover (Interception)
+                if (state.turnover) {
+                    // Yard line does not change (turnover on the spot)
+                    changePossession(state.yardLine, state.message);
+                } else {
+                    // 4. Update Field Position
+                    // T1 drives 0->100 (+1), T2 drives 100->0 (-1)
+                    const direction = state.possession === 'T1' ? 1 : -1;
+                    let newYardLine = state.yardLine + (yardsGained * direction);
+                    
+                    // Ensure yard line stays between 1 and 100 (for first down checks, TDs happen at 0 or 100)
+                    state.yardLine = newYardLine;
+
+                    // 5. Check Play Result (TD, First Down, Turnover on Downs)
+                    checkDownState(yardsGained);
+                }
+            }
+
+            // 6. Update Clock
+            updateClock(PLAY_TIME);
+
+            // 7. Update UI
+            updateUI();
+        };
+
+        /** Updates the game clock and quarter. */
+        const updateClock = (secondsToDecrement) => {
+            state.time -= secondsToDecrement;
+            
+            while (state.time <= 0 && state.quarter < 4) {
+                state.quarter++;
+                state.time += QUARTER_TIME;
+                showModal(`End of Quarter ${state.quarter - 1}! Starting Quarter ${state.quarter}.`);
+            }
+
+            if (state.time <= 0 && state.quarter === 4) {
+                state.gameActive = false;
+                state.gameOver = true;
+                let winner = '';
+                if (state.score.T1 > state.score.T2) {
+                    winner = 'Team A wins!';
+                } else if (state.score.T2 > state.score.T1) {
+                    winner = 'Team B wins!';
+                } else {
+                    winner = 'It\'s a tie!';
+                }
+                showModal(`GAME OVER! Final Score: ${state.score.T1} - ${state.score.T2}. ${winner}`);
+                state.message = `Game Over. Final Score: ${state.score.T1} - ${state.score.T2}.`;
+                updateControls(false);
+            }
+        };
+
+        // --- UI Rendering Functions ---
+
+        /** Updates all elements on the screen based on the current state. */
+        const updateUI = () => {
+            // Clock/Scoreboard
+            document.getElementById('quarter-display').textContent = state.quarter;
+            document.getElementById('time-display').textContent = formatTime(state.time);
+            document.getElementById('score-t1').textContent = state.score.T1;
+            document.getElementById('score-t2').textContent = state.score.T2;
+            
+            // Down and Distance
+            document.getElementById('down-display').textContent = state.down;
+            document.getElementById('to-go-display').textContent = state.toGo;
+
+            // Field Position Labels (flips based on possession)
+            const team1Label = document.getElementById('team1-label');
+            const team2Label = document.getElementById('team2-label');
+            const fieldLabelOwn = document.getElementById('field-label-own');
+            const fieldLabelOpp = document.getElementById('field-label-opp');
+
+            if (state.possession === 'T1') {
+                team1Label.classList.add('text-yellow-300', 'font-extrabold');
+                team2Label.classList.remove('text-yellow-300', 'font-extrabold');
+                
+                fieldLabelOwn.textContent = 'T1 Endzone';
+                fieldLabelOwn.classList.add('text-blue-400');
+                fieldLabelOwn.classList.remove('text-red-400');
+                
+                fieldLabelOpp.textContent = 'T2 Endzone';
+                fieldLabelOpp.classList.add('text-red-400');
+                fieldLabelOpp.classList.remove('text-blue-400');
+            } else {
+                team2Label.classList.add('text-yellow-300', 'font-extrabold');
+                team1Label.classList.remove('text-yellow-300', 'font-extrabold');
+                
+                fieldLabelOwn.textContent = 'T2 Endzone';
+                fieldLabelOwn.classList.add('text-red-400');
+                fieldLabelOpp.classList.remove('text-red-400');
+
+                fieldLabelOpp.textContent = 'T1 Endzone';
+                fieldLabelOpp.classList.add('text-blue-400');
+                fieldLabelOpp.classList.remove('text-blue-400');
+            }
+
+
+            // Field Marker Visualization (0% is T1 Endzone, 100% is T2 Endzone)
+            let ballPosition = state.yardLine / YARD_LINE_MAX * 100;
+            
+            // Adjust markers for T2 possession (Ball position is relative to T1's endzone)
+            const ballMarker = document.getElementById('ball-marker');
+            const fdMarker = document.getElementById('first-down-marker');
+            
+            ballMarker.style.left = `${ballPosition}%`;
+            
+            // Display yard line relative to the offense's perspective (1-50)
+            const yardsFromOwnEndzone = state.possession === 'T1' 
+                ? state.yardLine 
+                : YARD_LINE_MAX - state.yardLine;
+            document.getElementById('yard-line-display').textContent = yardsFromOwnEndzone;
+
+
+            // Calculate First Down Marker position (relative to T1's endzone 0-100)
+            let fdPosition;
+            if (state.possession === 'T1') {
+                fdPosition = (state.yardLine + state.toGo) / YARD_LINE_MAX * 100;
+            } else {
+                fdPosition = (state.yardLine - state.toGo) / YARD_LINE_MAX * 100;
+            }
+            // Clamp FD marker between the endzones
+            fdPosition = Math.max(0, Math.min(100, fdPosition));
+            fdMarker.style.left = `${fdPosition}%`;
+
+            // Last Play Details
+            document.getElementById('game-message').textContent = state.message;
+            document.getElementById('d6-display').textContent = state.d6Roll || 'D6';
+            document.getElementById('d20-display').textContent = state.d20Roll || 'D20';
+            
+            const coinPlayDisplay = document.getElementById('coin-play-display');
+            coinPlayDisplay.textContent = state.coinPlay;
+            coinPlayDisplay.className = 'w-12 h-12 flex items-center justify-center rounded-lg bg-gray-600 font-bold text-base';
+            
+            const coinSuccessDisplay = document.getElementById('coin-success-display');
+            coinSuccessDisplay.textContent = state.coinSuccess;
+            coinSuccessDisplay.className = 'w-12 h-12 flex items-center justify-center rounded-lg font-bold text-base';
+            
+            if (state.coinSuccess === 'Green') {
+                coinSuccessDisplay.classList.add('green-coin', 'text-black');
+            } else if (state.coinSuccess === 'Red') {
+                coinSuccessDisplay.classList.add('red-coin', 'text-white');
+            } else {
+                coinSuccessDisplay.classList.add('bg-gray-600');
+            }
+        };
+
+        /** Enables/disables game control buttons. */
+        const updateControls = (isActive) => {
+            document.getElementById('play-by-play-btn').disabled = !isActive;
+            document.getElementById('sim-full-btn').disabled = !isActive;
+            document.getElementById('start-game-btn').textContent = isActive ? 'RESTART GAME' : 'START NEW GAME';
+        };
+
+        // --- Public Game Control Functions ---
+
+        /** Starts a new game. */
+        const startGame = () => {
+            initializeState();
+        };
+
+        /** Simulates the entire game automatically. */
+        const simulateFullGame = () => {
+            if (!state.gameActive || state.gameOver) return;
+            
+            // Disable controls during simulation
+            document.getElementById('play-by-play-btn').disabled = true;
+            document.getElementById('sim-full-btn').disabled = true;
+
+            const simulationLoop = setInterval(() => {
+                if (!state.gameActive) {
+                    clearInterval(simulationLoop);
+                    updateUI(); // Final update
+                    updateControls(false);
+                    return;
+                }
+                playTurn();
+            }, 50); // Fast simulation for the loop, actual clock time is 30s per play
+        };
+
+        // Initialize on load
+        window.onload = () => {
+            initializeState();
+            state.gameActive = false;
+            updateUI();
+            updateControls(false);
+            document.getElementById('game-message').textContent = "Click 'Start New Game' to begin your season!";
+        };
+    </script>
+</body>
+</html>
